@@ -9,8 +9,16 @@ class Skill extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'description', 'price', 'video_url', 'notes', 'is_active'];
+protected $fillable = [
+    'name', 'category_id', 'description', 'price', 
+    'video_url', 'platform_link', 'pdf_file', 'voice_file', 
+    'notes', 'is_active'
+];
 
+public function category()
+{
+    return $this->belongsTo(Category::class);
+}
     public function users()
     {
         return $this->belongsToMany(User::class, 'user_skills')

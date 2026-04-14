@@ -16,6 +16,20 @@
         .sidebar-link.active { background-color: #FF6F00; color: white; }
         .sidebar-overlay { background-color: rgba(0,0,0,0.5); backdrop-filter: blur(2px); }
     </style>
+<script>
+    // Auto-hide flash messages after 5 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+        const flashMessages = document.querySelectorAll('.flash-message');
+        flashMessages.forEach(message => {
+            setTimeout(() => {
+                message.style.transition = 'opacity 0.5s ease';
+                message.style.opacity = '0';
+                setTimeout(() => message.remove(), 500);
+            }, 5000);
+        });
+    });
+</script>
+<meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body class="bg-gray-50">
     <div class="flex h-screen overflow-hidden relative">
@@ -52,7 +66,7 @@
                 <a href="{{ route('admin.testimonials.index') }}" 
                    class="sidebar-link flex items-center px-4 py-3 text-gray-700 rounded-lg {{ request()->routeIs('admin.testimonials.*') ? 'active' : '' }}">
                     <i class="fas fa-star w-5 h-5 mr-3"></i>
-                    <span>Testimonials & Screenshots</span>
+                    <span>ushuhuda</span>
                 </a>
                 
                 <a href="{{ route('admin.payments.index') }}" 

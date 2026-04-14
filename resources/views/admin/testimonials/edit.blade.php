@@ -7,8 +7,8 @@
 <div class="max-w-3xl mx-auto">
     <div class="bg-white rounded-xl shadow-md overflow-hidden">
         <div class="px-6 py-4 border-b border-gray-200">
-            <h2 class="text-lg font-semibold text-gray-800">Edit: {{ $testimonial->name }}</h2>
-            <p class="text-sm text-gray-500 mt-1">Update testimonial details or replace images.</p>
+            <h2 class="text-lg font-semibold text-gray-800">Edit Testimonial</h2>
+            <p class="text-sm text-gray-500 mt-1">Update user feedback, image, or screenshot.</p>
         </div>
         
         <form action="{{ route('admin.testimonials.update', $testimonial) }}" method="POST" enctype="multipart/form-data" class="p-6">
