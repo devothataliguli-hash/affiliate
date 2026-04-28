@@ -29,11 +29,10 @@ class DashboardController extends Controller
         $recentPayments = Payment::with(['user', 'skill'])->latest()->take(10)->get();
         $recentUsers = User::latest()->take(5)->get();
         
-        // Chart data
-        $paymentsByMonth = Payment::selectRaw('MONTH(created_at) as month, COUNT(*) as count')
-            ->whereYear('created_at', date('Y'))
-            ->groupBy('month')
-            ->get();
+$paymentsByMonth = Payment::selectRaw('EXTRACT(MONTH FROM created_at) as month, COUNT(*) as count')
+    ->whereYear('created_at', date('Y'))
+    ->groupBy('month')
+    ->get();
         
         return view('admin.dashboard', compact(
             'totalUsers', 'totalSkills', 'totalPayments', 'pendingPayments',
