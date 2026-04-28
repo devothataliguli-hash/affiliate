@@ -9,25 +9,43 @@ class Skill extends Model
 {
     use HasFactory;
 
-protected $fillable = [
-    'name', 'category_id', 'description', 'price', 
-    'video_url', 'platform_link', 'pdf_file', 'voice_file', 
-    'notes', 'is_active'
-];
+    protected $fillable = [
+        'name', 'slug', 'description', 'price', 'icon', 'color', 'is_active', 'order'
+    ];
 
-public function category()
-{
-    return $this->belongsTo(Category::class);
-}
+    protected $casts = [
+        'is_active' => 'boolean',
+        'price' => 'decimal:2',
+    ];
+
+    public function categories()
+    {
+        return $this->hasMany(Category::class)->orderBy('order');
+    }
+
     public function users()
     {
-        return $this->belongsToMany(User::class, 'user_skills')
-                    ->withPivot('is_approved', 'approved_at')
-                    ->withTimestamps();
+        return $this->belongsToMany(User::class)->withPivot('status', 'approved_at');
     }
 
     public function payments()
     {
         return $this->hasMany(Payment::class);
+    }
+
+    public function isPurchasedBy(User $user)
+    {
+        return $this->users()
+            ->where('user_id', $user->id)
+            ->wherePivot('status', 'approved')
+            ->exists();
+    }
+
+    public function isPendingFor(User $user)
+    {
+        return $this->users()
+            ->where('user_id', $user->id)
+            ->wherePivot('status', 'pending')
+            ->exists();
     }
 }

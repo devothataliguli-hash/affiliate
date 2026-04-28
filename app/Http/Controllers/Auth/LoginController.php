@@ -31,16 +31,20 @@ class LoginController extends Controller
             'password' => $password,
         ];
 
-        if (Auth::attempt($credentials, $request->filled('remember'))) {
-            $request->session()->regenerate();
-            
-            // Redirect based on user role
-            if (Auth::user()->is_admin) {
-                return redirect()->intended(route('admin.dashboard'))->with('success', 'Karibu Admin!');
-            }
-            
-            return redirect()->intended(route('dashboard'))->with('success', 'Karibu tena!');
-        }
+if (Auth::attempt($credentials, $request->filled('remember'))) {
+    $request->session()->regenerate();
+
+    // Redirect based on user role
+    if (Auth::user()->is_admin) {
+        return redirect()
+            ->intended(route('admin.dashboard'))
+            ->with('success', 'Karibu Admin!');
+    }
+
+    return redirect()
+        ->intended(route('user.dashboard'))
+        ->with('success', 'Karibu tena!');
+}
 
         return back()->withErrors([
             'login' => 'Taarifa ulizoweka hazilingani na rekodi zetu.',

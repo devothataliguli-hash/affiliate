@@ -9,10 +9,17 @@ class Category extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'slug', 'description', 'is_active'];
+    protected $fillable = [
+        'skill_id', 'name', 'slug', 'description', 'order'
+    ];
 
-    public function skills()
+    public function skill()
     {
-        return $this->hasMany(Skill::class);
+        return $this->belongsTo(Skill::class);
+    }
+
+    public function contents()
+    {
+        return $this->hasMany(Content::class)->orderBy('order');
     }
 }

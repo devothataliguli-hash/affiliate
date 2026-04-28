@@ -165,8 +165,18 @@
                             <a href="{{ route('login') }}" class="text-gray-700 hover:text-primary font-medium px-3 py-2 rounded-lg text-sm register-trigger" data-i18n="login">Ingia</a>
                             <a href="{{ route('register') }}" class="bg-primary hover:bg-primary-dark text-white px-5 py-2 rounded-full font-semibold transition shadow-md text-sm register-trigger" data-i18n="register">Jisajili</a>
                         @else
-                            <a href="{{ route('dashboard') }}" class="text-gray-700 hover:text-primary font-medium px-3 py-2 text-sm"><i class="fas fa-user mr-1"></i> Dashboard</a>
-                            <form method="POST" action="{{ route('logout') }}" class="inline">
+                       @auth
+    @if(Auth::user()->is_admin)
+        <a href="{{ route('admin.dashboard') }}" class="text-gray-700 hover:text-primary font-medium px-3 py-2 text-sm">
+            <i class="fas fa-user mr-1"></i> Dashboard
+        </a>
+    @else
+        <a href="{{ route('user.dashboard') }}" class="text-gray-700 hover:text-primary font-medium px-3 py-2 text-sm">
+            <i class="fas fa-user mr-1"></i> Dashboard
+        </a>
+    @endif
+@endauth
+   <form method="POST" action="{{ route('logout') }}" class="inline">
                                 @csrf
                                 <button type="submit" class="text-red-600 hover:text-red-800 font-medium px-3 py-2 text-sm"><i class="fas fa-sign-out-alt mr-1"></i> Toka</button>
                             </form>
@@ -203,8 +213,22 @@
                             <a href="{{ route('login') }}" @click="mobileMenuOpen = false" class="block px-3 py-2 text-gray-700 hover:bg-gray-50 rounded-lg register-trigger" data-i18n="login">Ingia</a>
                             <a href="{{ route('register') }}" @click="mobileMenuOpen = false" class="block px-3 py-2 bg-primary text-white text-center rounded-lg font-semibold register-trigger" data-i18n="register">Jisajili</a>
                         @else
-                            <a href="{{ route('dashboard') }}" @click="mobileMenuOpen = false" class="block px-3 py-2 text-gray-700 rounded-lg">Dashboard</a>
-                            <form method="POST" action="{{ route('logout') }}">
+                        @auth
+    @if(Auth::user()->is_admin)
+        <a href="{{ route('admin.dashboard') }}" 
+           @click="mobileMenuOpen = false" 
+           class="block px-3 py-2 text-gray-700 rounded-lg">
+            Dashboard
+        </a>
+    @else
+        <a href="{{ route('user.dashboard') }}" 
+           @click="mobileMenuOpen = false" 
+           class="block px-3 py-2 text-gray-700 rounded-lg">
+            Dashboard
+        </a>
+    @endif
+@endauth
+   <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button type="submit" class="w-full text-left px-3 py-2 text-red-600 rounded-lg">Toka</button>
                             </form>
@@ -420,7 +444,7 @@
                             @php $points = explode(',', $skill->description ?? 'Advanced tactics,Real case studies'); @endphp
                             @foreach(array_slice($points,0,2) as $point)<li><i class="fas fa-check text-primary mr-1"></i> {{ trim($point) }}</li>@endforeach
                         </ul>
-                        <div class="flex justify-between items-center mt-3"><span class="text-2xl font-bold text-primary">Tsh {{ number_format($skill->price) }}</span>@auth<a href="{{ route('user.payment.create', $skill->id) }}" class="bg-primary px-4 py-2 rounded-lg text-sm font-semibold register-trigger">Enroll</a>@else<a href="{{ route('register') }}" class="bg-primary px-4 py-2 rounded-lg text-sm register-trigger" data-i18n="team_enroll">Join to Access</a>@endauth</div>
+                        <div class="flex justify-between items-center mt-3"><span class="text-2xl font-bold text-primary">Tsh {{ number_format($skill->price) }}</span>@auth<a href="{{ route('user.payments.create', $skill->id) }}" class="bg-primary px-4 py-2 rounded-lg text-sm font-semibold register-trigger">Enroll</a>@else<a href="{{ route('register') }}" class="bg-primary px-4 py-2 rounded-lg text-sm register-trigger" data-i18n="team_enroll">Join to Access</a>@endauth</div>
                     </div>
                     @empty
                     <div class="bg-gray-800/60 p-6 rounded-xl"><div class="flex justify-between"><h3 class="font-bold">Team Building Mastery</h3><i class="fas fa-lock"></i></div><ul class="text-sm mt-2"><li><i class="fas fa-check text-primary"></i> Recruitment strategies</li><li><i class="fas fa-check text-primary"></i> Retention systems</li></ul><div class="flex justify-between mt-3"><span class="text-2xl font-bold text-primary">Tsh 20,000</span><a href="{{ route('register') }}" class="bg-primary px-4 py-2 rounded-lg text-sm register-trigger">Get Access</a></div></div>
@@ -466,7 +490,7 @@
             <div class="max-w-4xl mx-auto text-center px-4">
                 <i class="fab fa-whatsapp text-3xl mb-2"></i>
                 <h3 class="text-xl font-bold" data-i18n="whatsapp_title">Need Help? Chat with us on WhatsApp</h3>
-                <a href="https://wa.me/255626549262" target="_blank" class="inline-block bg-white text-primary px-6 py-2 rounded-full font-bold mt-3 shadow-md">0678 043 562 → Click to Message</a>
+                <a href="https://wa.me/255626549262" target="_blank" class="inline-block bg-white text-primary px-6 py-2 rounded-full font-bold mt-3 shadow-md">0626 549 262 → Click to Message</a>
             </div>
         </section>
 

@@ -11,12 +11,14 @@ return new class extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('skill_id')->nullable()->constrained()->onDelete('set null');
+            $table->foreignId('skill_id')->constrained()->onDelete('cascade');
+            $table->string('transaction_id')->unique();
+            $table->string('phone_number');
             $table->decimal('amount', 10, 2);
-            $table->string('payment_method')->default('mobile_money');
-            $table->string('transaction_id')->nullable();
-            $table->string('status')->default('pending'); // pending, completed, failed
+            $table->enum('status', ['pending', 'approved', 'rejected', 'failed'])->default('pending');
             $table->text('notes')->nullable();
+            $table->timestamp('approved_at')->nullable();
+            $table->foreignId('approved_by')->nullable()->constrained('users');
             $table->timestamps();
         });
     }

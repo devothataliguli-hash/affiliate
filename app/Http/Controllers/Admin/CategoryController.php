@@ -3,69 +3,128 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Skill;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
-    public function index()
+    public function index(Skill $skill)
     {
-        $categories = Category::latest()->paginate(10);
-        return view('admin.categories.index', compact('categories'));
+        $categories = $skill->categories()->orderBy('order')->get();
+        return view('admin.categories.index', compact('skill', 'categories'));
     }
 
-    public function show(Category $category)
+    public function create(Skill $skill)
     {
-        return response()->json($category);
+        return view('admin.categories.create', compact('skill'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, Skill $skill)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:100|unique:categories',
+        $request->validate([
+            'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'is_active' => 'boolean',
+            'order' => 'nullable|integer',
         ]);
 
-        $validated['slug'] = Str::slug($validated['name']);
-        $validated['is_active'] = $request->boolean('is_active');
+        // Generate base slug
+        $slug = Str::slug($request->name);
 
-        $category = Category::create($validated);
+        // Make slug unique globally
+        $slug = $this->uniqueSlug($slug);
 
-        if ($request->expectsJson()) {
-            return response()->json(['success' => true, 'data' => $category]);
-        }
-        return redirect()->route('admin.categories.index')->with('success', 'Category created.');
-    }
-
-    public function update(Request $request, Category $category)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:100|unique:categories,name,' . $category->id,
-            'description' => 'nullable|string',
-            'is_active' => 'boolean',
+        $skill->categories()->create([
+            'name' => $request->name,
+            'slug' => $slug,
+            'description' => $request->description,
+            'order' => $request->order ?? 0,
         ]);
 
-        $validated['slug'] = Str::slug($validated['name']);
-        $validated['is_active'] = $request->boolean('is_active');
-
-        $category->update($validated);
-
-        if ($request->expectsJson()) {
-            return response()->json(['success' => true]);
-        }
-        return redirect()->route('admin.categories.index')->with('success', 'Category updated.');
+        return redirect()
+            ->route('admin.skills.categories.index', $skill)
+            ->with('success', 'Category created successfully.');
     }
 
-    public function destroy(Category $category, Request $request)
+    /**
+     * FIXED: Add Skill parameter before Category
+     * Route: admin/skills/{skill}/categories/{category}/edit
+     */
+    public function edit(Skill $skill, Category $category)
     {
-        $category->skills()->update(['category_id' => null]);
+        // Verify the category belongs to this skill
+        if ($category->skill_id !== $skill->id) {
+            abort(404, 'Category not found for this skill.');
+        }
+        
+        return view('admin.categories.edit', compact('skill', 'category'));
+    }
+
+    /**
+     * FIXED: Add Skill parameter before Category
+     */
+    public function update(Request $request, Skill $skill, Category $category)
+    {
+        // Verify the category belongs to this skill
+        if ($category->skill_id !== $skill->id) {
+            abort(404, 'Category not found for this skill.');
+        }
+        
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'order' => 'nullable|integer',
+        ]);
+
+        $slug = Str::slug($request->name);
+
+        // Only regenerate slug if name changed
+        if ($category->name !== $request->name) {
+            $slug = $this->uniqueSlug($slug);
+        }
+
+        $category->update([
+            'name' => $request->name,
+            'slug' => $slug,
+            'description' => $request->description,
+            'order' => $request->order ?? 0,
+        ]);
+
+        return redirect()
+            ->route('admin.skills.categories.index', $skill)
+            ->with('success', 'Category updated successfully.');
+    }
+
+    /**
+     * FIXED: Add Skill parameter before Category
+     */
+    public function destroy(Skill $skill, Category $category)
+    {
+        // Verify the category belongs to this skill
+        if ($category->skill_id !== $skill->id) {
+            abort(404, 'Category not found for this skill.');
+        }
+        
         $category->delete();
 
-        if ($request->expectsJson()) {
-            return response()->json(['success' => true]);
+        return redirect()
+            ->route('admin.skills.categories.index', $skill)
+            ->with('success', 'Category deleted successfully.');
+    }
+
+    /**
+     * Ensure slug is unique in categories table
+     */
+    private function uniqueSlug($slug)
+    {
+        $original = $slug;
+        $count = 1;
+
+        while (Category::where('slug', $slug)->exists()) {
+            $slug = $original . '-' . $count++;
         }
-        return redirect()->route('admin.categories.index')->with('success', 'Category deleted.');
+
+        return $slug;
     }
 }

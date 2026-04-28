@@ -11,12 +11,13 @@ return new class extends Migration
         Schema::create('testimonials', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('email')->nullable();
             $table->string('location')->nullable();
+            $table->string('image')->nullable();
             $table->text('content');
-            $table->string('image')->nullable(); // profile or screenshot
-            $table->string('screenshot')->nullable(); // payment screenshot
             $table->integer('rating')->default(5);
             $table->boolean('is_active')->default(true);
+            $table->integer('order')->default(0);
             $table->timestamps();
         });
     }

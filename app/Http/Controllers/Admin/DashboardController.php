@@ -10,18 +10,34 @@ use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            if (!auth()->user()->isAdmin()) {
+                abort(403, 'Unauthorized access.');
+            }
+            return $next($request);
+        });
+    }
+    
     public function index()
     {
         $totalUsers = User::count();
         $totalSkills = Skill::count();
-        $totalPayments = Payment::where('status', 'completed')->sum('amount');
-        $pendingApprovals = \DB::table('user_skills')->where('is_approved', false)->count();
+        $totalPayments = Payment::count();
+        $pendingPayments = Payment::where('status', 'pending')->count();
+        $recentPayments = Payment::with(['user', 'skill'])->latest()->take(10)->get();
         $recentUsers = User::latest()->take(5)->get();
-        $recentPayments = Payment::with('user')->latest()->take(5)->get();
-
+        
+        // Chart data
+        $paymentsByMonth = Payment::selectRaw('MONTH(created_at) as month, COUNT(*) as count')
+            ->whereYear('created_at', date('Y'))
+            ->groupBy('month')
+            ->get();
+        
         return view('admin.dashboard', compact(
-            'totalUsers', 'totalSkills', 'totalPayments', 
-            'pendingApprovals', 'recentUsers', 'recentPayments'
+            'totalUsers', 'totalSkills', 'totalPayments', 'pendingPayments',
+            'recentPayments', 'recentUsers', 'paymentsByMonth'
         ));
     }
 }

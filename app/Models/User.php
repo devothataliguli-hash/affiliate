@@ -11,33 +11,39 @@ class User extends Authenticatable
     use HasFactory, Notifiable;
 
     protected $fillable = [
-        'name',
-        'email',
-        'phone',
-        'password',
+        'name', 'email', 'phone', 'whatsapp', 'location', 'password', 'is_admin',
     ];
 
     protected $hidden = [
-        'password',
-        'remember_token',
+        'password', 'remember_token',
     ];
 
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'is_admin' => 'boolean',
-    ];
-
-    // 🔗 Relationships
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+            'is_admin' => 'boolean',
+        ];
+    }
 
     public function skills()
     {
-        return $this->belongsToMany(Skill::class, 'user_skills')
-                    ->withPivot('is_approved', 'approved_at')
-                    ->withTimestamps();
+        return $this->belongsToMany(Skill::class)->withPivot('status', 'approved_at')->withTimestamps();
+    }
+
+    public function approvedSkills()
+    {
+        return $this->belongsToMany(Skill::class)->wherePivot('status', 'approved');
     }
 
     public function payments()
     {
         return $this->hasMany(Payment::class);
+    }
+
+    public function isAdmin()
+    {
+        return $this->is_admin === true;
     }
 }
